@@ -42,29 +42,3 @@
     (go
       (handler-fn (<! stream))))
   :done)
-
-(comment
-
-  (->> (make-stream (partial * 2) 1)
-       consume-stream-sync
-       (take 20))
-  
-  (-> (make-stream (partial * 2) 10)
-      (consume-stream-sync 10))
-
-  
-  (with-out-str
-    (time
-     (consume-stream-sync (make-stream inc 10) 10)))
-  (<!! (make-stream inc 1))
-  (consume-stream-async (make-stream inc 1) 100 println)
-  (defstream adder inc 1)
-  (consume-stream-sync (make-stream inc 10) 10)
-  (<!! (make-stream inc 1))
-  (->> 1
-       (make-stream inc)
-       (compose-stream (partial * 3))
-       (compose-stream #(- % 2))
-       <!!)
-  
-  )
