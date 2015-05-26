@@ -2,8 +2,8 @@
   (:require [clojure.core.async :as a :refer [chan go go-loop <! >! <!! >!!]]))
 
 (defn make-stream
-  [handler-fn initial-state]
-  (let [ch (chan 1)]
+  [handler-fn initial-state & [buffer-size]]
+  (let [ch (chan (or buffer-size 1))]
     (go-loop [state initial-state]
       (>! ch state)
       (recur (handler-fn state)))
@@ -22,8 +22,11 @@
 
 (defmacro defstream
   "Returns a channel that is infinitely populated."
-  [stream-name handler-fn initial-state]
-  `(def ~stream-name ~(make-stream (eval handler-fn) initial-state)))
+  [stream-name handler-fn initial-state & [buffer-size]]
+  (let [stream (if buffer-size
+                 (make-stream (eval handler-fn) initial-state buffer-size)
+                 (make-stream (eval handler-fn) initial-state))]
+    `(def ~stream-name ~stream)))
 
 (defn consume-stream-sync
   ([stream]
